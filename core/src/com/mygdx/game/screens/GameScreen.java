@@ -7,13 +7,16 @@ import com.badlogic.gdx.graphics.g2d.BitmapFont;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.math.MathUtils;
 import com.badlogic.gdx.math.Vector2;
+import com.badlogic.gdx.math.Vector3;
 import com.badlogic.gdx.physics.box2d.Body;
+import com.badlogic.gdx.physics.box2d.Box2DDebugRenderer;
 import com.badlogic.gdx.physics.box2d.Contact;
 import com.badlogic.gdx.physics.box2d.ContactImpulse;
 import com.badlogic.gdx.physics.box2d.ContactListener;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.Manifold;
 import com.badlogic.gdx.physics.box2d.World;
+import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.mygdx.game.Pong;
 import com.mygdx.game.managers.GameScreenManager;
 import com.mygdx.game.utils.B2DBodyBuilder;
@@ -26,8 +29,8 @@ public class GameScreen extends AbstractScreen {
     OrthographicCamera cam;
 
     //Box2D
-    World world;
 //    Box2DDebugRenderer b2dr;
+    World world;
 
     //Game Bodies
     Body ball;
@@ -53,6 +56,8 @@ public class GameScreen extends AbstractScreen {
 
         this.cam = new OrthographicCamera();
         this.cam.setToOrtho(false, Pong.V_WIDTH, Pong.V_Height);
+        FitViewport viewp = new FitViewport(Pong.V_WIDTH, Pong.V_Height, cam);
+        stage.setViewport(viewp);
         leftScored = false;
 
         //Setup fonts for scores
@@ -67,10 +72,9 @@ public class GameScreen extends AbstractScreen {
 
     @Override
     public void show() {
-        //Debugger
+//        Debugger
 //        this.b2dr = new Box2DDebugRenderer();
 
-        //
         if (textLeft == pointsToWin) {
             app.gsm.getScreen().setTitleText("PLAYER WINS");
             app.gsm.setScreen(GameScreenManager.STATE.MAIN_MENU);
@@ -85,7 +89,6 @@ public class GameScreen extends AbstractScreen {
         this.world = new World(new Vector2(0f, 0f), false);
         createCollisionDetection();
 
-
         initArena();
 
     }
@@ -95,8 +98,10 @@ public class GameScreen extends AbstractScreen {
     public void update(float dt) {
         world.step(1f / Pong.FPS, 6, 2);
 
-        //Get mouse pos and move paddle
-        float mousePosToWorld = -(Gdx.input.getY() - cam.viewportHeight) / PPM;
+        //Get touch pos and move paddle
+
+        Vector3 touchPos = cam.unproject(new Vector3(Gdx.input.getX(), Gdx.input.getY(), 0f));
+        float mousePosToWorld = (touchPos.y / PPM);
         float mouseLerp = paddleLeft.getPosition().y + (mousePosToWorld - paddleLeft.getPosition().y) * .2f;
         float botLerp = paddleRight.getPosition().y + (ball.getPosition().y - paddleRight.getPosition().y) * .2f;
 
@@ -107,7 +112,7 @@ public class GameScreen extends AbstractScreen {
         }
         paddleLeft.setTransform(paddleLeft.getPosition().x, mouseLerp, paddleLeft.getAngle());
         paddleRight.setTransform(paddleRight.getPosition().x, botLerp, paddleRight.getAngle());
-        stage.act(dt);
+//        stage.act(dt);
         cam.update();
         app.batch.setProjectionMatrix(cam.combined);
         app.shapeBatch.setProjectionMatrix(cam.combined);
@@ -117,13 +122,13 @@ public class GameScreen extends AbstractScreen {
     public void render(float dt) {
         super.render(dt);
 
-        //Debugger
+//        Debugger
 //        b2dr.render(world, cam.combined.cpy().scl(PPM));
 
         leftPaddleSprite.setPosition((paddleLeft.getPosition().x * PPM) - 5, (paddleLeft.getPosition().y * PPM) - 20);
         rightPaddleSprite.setPosition((paddleRight.getPosition().x * PPM) - 5, (paddleRight.getPosition().y * PPM) - 20);
         ballSprite.setPosition((ball.getPosition().x * PPM) - 6, (ball.getPosition().y * PPM) - 6);
-        stage.draw();
+//        stage.draw();
         app.batch.begin();
         scoreLeft.draw(app.batch, Integer.toString(textLeft), (cam.viewportWidth / 2) - 20, cam.viewportHeight - 17);
         scoreRight.draw(app.batch, Integer.toString(textRight), (cam.viewportWidth / 2) + 20, cam.viewportHeight - 17);

@@ -12,8 +12,6 @@ public class GameScreenManager {
     private final Pong app;
     private HashMap<STATE, AbstractScreen> gameScreens;
 
-    private String menuText = "PONG";
-
     public enum STATE {
         MAIN_MENU,
         PLAY,
@@ -22,11 +20,9 @@ public class GameScreenManager {
 
     public GameScreenManager(final Pong app) {
         this.app = app;
-//        menuText = "PONG";
 
         initGameScreens();
         setScreen(STATE.MAIN_MENU);
-        System.out.println(gameScreens);
     }
 
     private void initGameScreens() {

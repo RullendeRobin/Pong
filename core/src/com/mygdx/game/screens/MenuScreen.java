@@ -17,6 +17,7 @@ import com.badlogic.gdx.scenes.scene2d.ui.TextButton;
 import com.badlogic.gdx.scenes.scene2d.utils.ChangeListener;
 import com.badlogic.gdx.scenes.scene2d.utils.Drawable;
 import com.badlogic.gdx.scenes.scene2d.utils.TextureRegionDrawable;
+import com.badlogic.gdx.utils.viewport.FitViewport;
 import com.mygdx.game.Pong;
 import com.mygdx.game.managers.GameScreenManager;
 
@@ -43,9 +44,10 @@ public class MenuScreen extends AbstractScreen{
         this.cam = new OrthographicCamera();
         this.cam.setToOrtho(false, Pong.V_WIDTH, Pong.V_Height);
 
-        stage = new Stage();
+        FitViewport viewp = new FitViewport(Pong.V_WIDTH, Pong.V_Height, cam);
+        stage = new Stage(viewp);
         Gdx.input.setInputProcessor(stage);
-        font1 = new BitmapFont();;
+        font1 = new BitmapFont();
         textButtonStyle = new TextButton.TextButtonStyle();
         textButtonStyle.font = font1;
         textButtonStyle.fontColor = Color.BLACK;
@@ -55,8 +57,8 @@ public class MenuScreen extends AbstractScreen{
         stage.addActor(button);
         addListener(button);
 
-        button.setPosition(cam.viewportWidth / 2 - 50, cam.viewportHeight / 2 - 75);
         button.setSize(100, 50);
+        button.setPosition((cam.viewportWidth - button.getWidth()) / 2, (cam.viewportHeight / 2) - 75);
 
         font2 = new BitmapFont();
         font2.getData().setScale(5);
@@ -64,6 +66,7 @@ public class MenuScreen extends AbstractScreen{
         desc = new GlyphLayout();
         titleText = "PONG";
         desc.setText(font1, "First to 5 points wins");
+
 
     }
 
@@ -74,8 +77,8 @@ public class MenuScreen extends AbstractScreen{
 
     @Override
     public void update(float dt) {
-        stage.act(dt);
         cam.update();
+        stage.act(dt);
         app.batch.setProjectionMatrix(cam.combined);
     }
 
@@ -83,6 +86,7 @@ public class MenuScreen extends AbstractScreen{
     public void render(float dt) {
         super.render(dt);
         stage.draw();
+
         app.batch.begin();
         font2.draw(app.batch, title, (cam.viewportWidth - title.width)/ 2, cam.viewportHeight - 145);
         font1.draw(app.batch, desc, (cam.viewportWidth - desc.width)/ 2, cam.viewportHeight - 400);
